@@ -12,18 +12,24 @@ const AdminPage = () => {
         flowerList: []
     });
 
+    const token = localStorage.getItem('token');
+
     useEffect(() => {
-        axios.get('http://localhost:8080/bouquets')
+        axios.get('http://localhost:8080/api/bouquets')
             .then(response => {
                 setFlowers(response.data);
             })
             .catch(error => {
-                console.error('Error fetching flowers:', error);
+                console.error('Ошибка загрузки букетов', error);
             });
     }, []);
 
     const handleAddFlower = () => {
-        axios.post('http://localhost:8080/bouquets', newFlower)
+        axios.post('http://localhost:8080/api/admin/bouquets', newFlower,{
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
             .then(response => {
                 setFlowers([...flowers, response.data]);
                 setNewFlower({
@@ -36,17 +42,21 @@ const AdminPage = () => {
                 });
             })
             .catch(error => {
-                console.error('Error adding flower:', error);
+                console.error('Ошибка при добавлении', error);
             });
     };
 
     const handleDeleteFlower = (flowerId) => {
-        axios.delete(`http://localhost:8080/bouquets/${flowerId}`)
+        axios.delete(`http://localhost:8080/api/admin/bouquets/${flowerId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
             .then(() => {
                 setFlowers(flowers.filter(flower => flower.id !== flowerId));
             })
             .catch(error => {
-                console.error('Error deleting flower:', error);
+                console.error('Ошибка при удалении', error);
             });
     };
 
