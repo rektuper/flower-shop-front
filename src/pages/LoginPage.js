@@ -20,7 +20,7 @@ const LoginPage = () => {
 
             const data = await res.json();
             localStorage.setItem('token', data.token);
-            navigate('/adminpage');
+            navigate('/');
         } catch (err) {
             setError(err.message);
         }
