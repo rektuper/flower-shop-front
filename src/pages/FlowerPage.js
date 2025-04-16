@@ -6,12 +6,25 @@ const FlowerPage = () => {
     const [filteredFlowers, setFilteredFlowers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [inStockOnly, setInStockOnly] = useState(false);
-    const [cart, setCart] = useState({}); // { bouquetId: { id, quantity } }
-    const [cartLoaded, setCartLoaded] = useState(false);
-
+    const [cartItems, setCartItems] = useState([]);
     const token = localStorage.getItem('token');
 
+    const fetchCart = () => {
+        axios.get('http://localhost:8080/api/cart', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
+            .then(response => {
+                setCartItems(response.data);
+            })
+            .catch(error => {
+                console.error('Ошибка при получении корзины:', error);
+            });
+    };
+
     useEffect(() => {
+        fetchCart();
         axios.get('http://localhost:8080/api/bouquets')
             .then(response => {
                 setFlowers(response.data);
@@ -19,30 +32,8 @@ const FlowerPage = () => {
             .catch(error => {
                 console.error('Ошибка при получении букетов:', error);
             });
-
-        axios.get('http://localhost:8080/api/cart', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-            .then(response => {
-                const cartData = {};
-                response.data.forEach(item => {
-                    cartData[item.bouquetId] = {
-                        id: item.id,
-                        quantity: item.quantity
-                    };
-                });
-                setCart(cartData);
-                setCartLoaded(true);
-            })
-            .catch(error => {
-                console.error('Ошибка при загрузке корзины:', error);
-                setCartLoaded(true);
-            });
     }, []);
 
-    // Обновляем фильтрованные цветы при изменении данных или фильтров
     useEffect(() => {
         let filtered = flowers;
 
@@ -56,81 +47,54 @@ const FlowerPage = () => {
             filtered = filtered.filter(f => f.inStock);
         }
 
-        // добавляем к каждому объекту данные из корзины
-        const enriched = filtered.map(flower => ({
-            ...flower,
-            cartItem: cart[flower.id] || null
-        }));
+        setFilteredFlowers(filtered);
+    }, [searchTerm, inStockOnly, flowers]);
 
-        setFilteredFlowers(enriched);
-    }, [searchTerm, inStockOnly, flowers, cart]);
-
-    const handleAddToCart = (flowerId) => {
+    const handleAddToCart = (flower) => {
         axios.post('http://localhost:8080/api/cart/add', {
-            bouquetId: flowerId,
+            bouquetId: flower.id,
             quantity: 1
         }, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         })
-            .then(response => {
-                const newItem = response.data;
-                setCart(prev => ({
-                    ...prev,
-                    [flowerId]: {
-                        id: newItem.id,
-                        quantity: newItem.quantity
-                    }
-                }));
-            })
+            .then(() => fetchCart())
             .catch(error => {
                 console.error('Ошибка при добавлении в корзину:', error);
             });
     };
 
-    const handleUpdateQuantity = (flowerId, newQuantity) => {
-        const cartItem = cart[flowerId];
-        if (!cartItem) return;
+    const handleUpdateQuantity = (flower, newQuantity) => {
 
         if (newQuantity <= 0) {
-            axios.delete(`http://localhost:8080/api/cart/remove/${cartItem.id}`, {
+            axios.delete(`http://localhost:8080/api/cart/remove/${flower.id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
-                .then(() => {
-                    setCart(prev => {
-                        const updated = { ...prev };
-                        delete updated[flowerId];
-                        return updated;
-                    });
-                })
+                .then(() => fetchCart())
                 .catch(error => {
                     console.error('Ошибка при удалении из корзины:', error);
                 });
         } else {
             axios.post('http://localhost:8080/api/cart/update', {
-                bouquetId: flowerId,
+                bouquetId: flower.id,
                 quantity: newQuantity
             }, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             })
-                .then(() => {
-                    setCart(prev => ({
-                        ...prev,
-                        [flowerId]: {
-                            ...prev[flowerId],
-                            quantity: newQuantity
-                        }
-                    }));
-                })
+                .then(() => fetchCart())
                 .catch(error => {
                     console.error('Ошибка при обновлении количества:', error);
                 });
         }
+    };
+
+    const getCartItemForFlower = (flowerName) => {
+        return cartItems.find(item => item.bouquetName === flowerName);
     };
 
     return (
@@ -156,41 +120,42 @@ const FlowerPage = () => {
             </div>
 
             <div className="flower-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
-                {filteredFlowers.map(flower => (
-                    <div
-                        key={flower.id}
-                        className="flower-card"
-                        style={{
-                            border: '1px solid #ccc',
-                            padding: '10px',
-                            borderRadius: '8px',
-                            width: '200px'
-                        }}
-                    >
-                        <img
-                            src={flower.imageUrl}
-                            alt={flower.name}
-                            style={{ width: '100%', height: '150px', objectFit: 'cover' }}
-                        />
-                        <h3>{flower.name}</h3>
-                        <p>Цена: {flower.price} руб.</p>
-                        <p>{flower.inStock ? 'В наличии' : 'Нет в наличии'}</p>
+                {filteredFlowers.map(flower => {
+                    const cartItem = getCartItemForFlower(flower.name);
+                    return (
+                        <div
+                            key={flower.id}
+                            className="flower-card"
+                            style={{
+                                border: '1px solid #ccc',
+                                padding: '10px',
+                                borderRadius: '8px',
+                                width: '200px'
+                            }}
+                        >
+                            <img
+                                src={flower.imageUrl}
+                                alt={flower.name}
+                                style={{ width: '100%', height: '150px', objectFit: 'cover' }}
+                            />
+                            <h3>{flower.name}</h3>
+                            <p>Цена: {flower.price} руб.</p>
+                            <p>{flower.inStock ? 'В наличии' : 'Нет в наличии'}</p>
 
-                        {cartLoaded && flower.cartItem ? (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <button onClick={() => handleUpdateQuantity(flower.id, flower.cartItem.quantity - 1)}>-</button>
-                                <span>{flower.cartItem.quantity}</span>
-                                <button onClick={() => handleUpdateQuantity(flower.id, flower.cartItem.quantity + 1)}>+</button>
-                            </div>
-                        ) : (
-                            cartLoaded && (
-                                <button onClick={() => handleAddToCart(flower.id)}>
+                            {cartItem ? (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <button onClick={() => handleUpdateQuantity(flower,cartItem.quantity - 1)}>-</button>
+                                    <span>{cartItem.quantity}</span>
+                                    <button onClick={() => handleUpdateQuantity(flower, cartItem.quantity + 1)}>+</button>
+                                </div>
+                            ) : (
+                                <button onClick={() => handleAddToCart(flower)}>
                                     В корзину
                                 </button>
-                            )
-                        )}
-                    </div>
-                ))}
+                            )}
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
