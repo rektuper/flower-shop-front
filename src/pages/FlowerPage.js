@@ -122,7 +122,10 @@ const FlowerPage = () => {
                                     <button className="cart-button" onClick={() => handleUpdateQuantity(flower, cartItem.quantity + 1)}>+</button>
                                 </div>
                             ) : (
-                                <button  onClick={() => handleAddToCart(flower)} className="add-to-cart-button">
+                                <button
+                                    onClick={() => handleAddToCart(flower)}
+                                    className="add-to-cart-button"
+                                    disabled={!flower.inStock}>
                                     В корзину
                                 </button>
                             )}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './../styles/RegisterPage.css';
 
 const RegisterPage = () => {
     const [username, setUsername] = useState('');
@@ -20,43 +21,40 @@ const RegisterPage = () => {
             });
 
             if (!res.ok) {
-                const errorText = await res.text(); // покажет текст ошибки, если есть
-                throw new Error(`Registration failed: ${errorText}`);
+                const errorText = await res.text();
+                throw new Error(errorText || 'Ошибка регистрации');
             }
 
-            let data;
-            try {
-                data = await res.json();
-            } catch (err) {
-                data = null;
-            }
-
-            console.log('Token:', data.token);
-            navigate('/login');
+            const data = await res.json();
+            localStorage.setItem('token', data.token);
+            navigate('/');
+            window.location.reload();
         } catch (err) {
             setError(err.message);
         }
     };
 
     return (
-        <div>
-            <h2>Регистрация</h2>
-            <form onSubmit={handleRegister}>
+        <div className="register-page">
+            <form className="register-form" onSubmit={handleRegister}>
+                <h2>Регистрация</h2>
                 <input
                     type="text"
-                    placeholder="Username"
+                    placeholder="Имя пользователя"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    required
                 />
                 <input
                     type="password"
-                    placeholder="Password"
+                    placeholder="Пароль"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    required
                 />
-                <button type="submit">Register</button>
+                <button type="submit">Зарегистрироваться</button>
+                {error && <p className="error-message">{error}</p>}
             </form>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
         </div>
     );
 };

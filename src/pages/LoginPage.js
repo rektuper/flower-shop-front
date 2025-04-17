@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './../styles/LoginPage.css';
 
 const LoginPage = () => {
     const [userLogin, setUsername] = useState('');
@@ -16,35 +17,38 @@ const LoginPage = () => {
                 body: JSON.stringify({ userLogin, userPassword })
             });
 
-            if (!res.ok) throw new Error('Login failed');
+            if (!res.ok) throw new Error('Неверный логин или пароль');
 
             const data = await res.json();
             localStorage.setItem('token', data.token);
             navigate('/');
+            window.location.reload();
         } catch (err) {
             setError(err.message);
         }
     };
 
     return (
-        <div>
-            <h2>Login</h2>
-            <form onSubmit={handleLogin}>
+        <div className="login-page">
+            <form className="login-form" onSubmit={handleLogin}>
+                <h2>Вход</h2>
                 <input
                     type="text"
-                    placeholder="Username"
+                    placeholder="Имя пользователя"
                     value={userLogin}
                     onChange={(e) => setUsername(e.target.value)}
+                    required
                 />
                 <input
                     type="password"
-                    placeholder="Password"
+                    placeholder="Пароль"
                     value={userPassword}
                     onChange={(e) => setPassword(e.target.value)}
+                    required
                 />
-                <button type="submit">Login</button>
+                <button type="submit">Войти</button>
+                {error && <p className="error-message">{error}</p>}
             </form>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
         </div>
     );
 };

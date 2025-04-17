@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './../styles/AdminPage.css';
 
 const AdminPage = () => {
     const [flowers, setFlowers] = useState([]);
@@ -16,19 +17,13 @@ const AdminPage = () => {
 
     useEffect(() => {
         axios.get('http://localhost:8080/api/bouquets')
-            .then(response => {
-                setFlowers(response.data);
-            })
-            .catch(error => {
-                console.error('Ошибка загрузки букетов', error);
-            });
+            .then(response => setFlowers(response.data))
+            .catch(error => console.error('Ошибка загрузки букетов', error));
     }, []);
 
     const handleAddFlower = () => {
-        axios.post('http://localhost:8080/api/admin/bouquets', newFlower,{
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+        axios.post('http://localhost:8080/api/admin/bouquets', newFlower, {
+            headers: { Authorization: `Bearer ${token}` }
         })
             .then(response => {
                 setFlowers([...flowers, response.data]);
@@ -41,80 +36,72 @@ const AdminPage = () => {
                     flowerList: []
                 });
             })
-            .catch(error => {
-                console.error('Ошибка при добавлении', error);
-            });
+            .catch(error => console.error('Ошибка при добавлении', error));
     };
 
     const handleDeleteFlower = (flowerId) => {
         axios.delete(`http://localhost:8080/api/admin/bouquets/${flowerId}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+            headers: { Authorization: `Bearer ${token}` }
         })
-            .then(() => {
-                setFlowers(flowers.filter(flower => flower.id !== flowerId));
-            })
-            .catch(error => {
-                console.error('Ошибка при удалении', error);
-            });
+            .then(() => setFlowers(flowers.filter(flower => flower.id !== flowerId)))
+            .catch(error => console.error('Ошибка при удалении', error));
     };
 
     return (
-        <div>
-            <h1>Админ панель</h1>
-            <h2>Добавить новый букет</h2>
-            <input
-                type="text"
-                placeholder="Название"
-                value={newFlower.name}
-                onChange={(e) => setNewFlower({ ...newFlower, name: e.target.value })}
-            />
-            <input
-                type="text"
-                placeholder="Описание"
-                value={newFlower.description}
-                onChange={(e) => setNewFlower({ ...newFlower, description: e.target.value })}
-            />
-            <input
-                type="number"
-                placeholder="Цена"
-                value={newFlower.price}
-                onChange={(e) => setNewFlower({ ...newFlower, price: e.target.value })}
-            />
-            <input
-                type="text"
-                placeholder="Ссылка на изображение"
-                value={newFlower.imageUrl}
-                onChange={(e) => setNewFlower({ ...newFlower, imageUrl: e.target.value })}
-            />
-            <label>
-                В наличии:
-                <input
-                    type="checkbox"
-                    checked={newFlower.inStock}
-                    onChange={(e) => setNewFlower({ ...newFlower, inStock: e.target.checked })}
-                />
-            </label>
-            <button onClick={handleAddFlower}>Добавить букет</button>
-
-            <h2>Существующие букеты</h2>
-            <ul>
-                {flowers.map(flower => (
-                    <li key={flower.id}>
-                        <img
-                            src={flower.imageUrl}
-                            alt={flower.name}
-                            width="100"
-                            height="80"
+        <div className="admin-page">
+            <h1>Админ-панель</h1>
+            <div className="admin-content">
+                <div className="add-flower-form">
+                    <h2>Добавить букет</h2>
+                    <input
+                        type="text"
+                        placeholder="Название"
+                        value={newFlower.name}
+                        onChange={(e) => setNewFlower({ ...newFlower, name: e.target.value })}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Описание"
+                        value={newFlower.description}
+                        onChange={(e) => setNewFlower({ ...newFlower, description: e.target.value })}
+                    />
+                    <input
+                        type="number"
+                        placeholder="Цена"
+                        value={newFlower.price}
+                        onChange={(e) => setNewFlower({ ...newFlower, price: e.target.value })}
+                    />
+                    <input
+                        type="text"
+                        placeholder="Ссылка на изображение"
+                        value={newFlower.imageUrl}
+                        onChange={(e) => setNewFlower({ ...newFlower, imageUrl: e.target.value })}
+                    />
+                    <label className="stock-checkbox">
+                        В наличии:
+                        <input
+                            type="checkbox"
+                            checked={newFlower.inStock}
+                            onChange={(e) => setNewFlower({ ...newFlower, inStock: e.target.checked })}
                         />
-                        <div>
-                            {flower.name} — {flower.price} ₽ — {flower.inStock ? 'В наличии' : 'Нет в наличии'}
+                    </label>
+                    <button onClick={handleAddFlower} className="add-button">Добавить</button>
+                </div>
+
+                <div className="flower-grid">
+                    {flowers.map(flower => (
+                        <div key={flower.id} className="flower-card">
+                            <img src={flower.imageUrl} alt={flower.name} className="flower-img" />
+                            <h3>{flower.name}</h3>
+                            <p>{flower.price} ₽</p>
+                            <p className={flower.inStock ? "in-stock" : "out-of-stock"}>
+                                {flower.inStock ? 'В наличии' : 'Нет в наличии'}
+                            </p>
+                            <button onClick={() => handleDeleteFlower(flower.id)} className="delete-button">Удалить</button>
                         </div>
-                        <button onClick={() => handleDeleteFlower(flower.id)}>Удалить</button>
-                    </li>
-                ))}
-            </ul>
+                    ))}
+                </div>
+            </div>
         </div>
     );
 };

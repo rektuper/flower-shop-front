@@ -116,3 +116,8 @@
 .add-to-cart-button:hover {
     background-color: #ff4fa3;
 }
+
+.add-to-cart-button:disabled{
+    background-color: #ccc;
+    cursor: not-allowed;
+}
