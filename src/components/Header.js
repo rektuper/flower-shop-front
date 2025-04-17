@@ -7,6 +7,7 @@ import './../styles/Header.css';
 const Header = () => {
     const [user, setUser] = useState(null);
     const [cartItems, setCartItems] = useState([]);
+    const [menuOpen, setMenuOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -41,29 +42,51 @@ const Header = () => {
         return user?.roles.includes(role);
     };
 
+    const toggleMenu = () => {
+        setMenuOpen(prev => !prev);
+    };
+
     return (
         <header className="header">
             <Link className="logo" to="/">🌸 FlowerShop</Link>
             <nav className="nav">
                 {user ? (
                     <>
-                        {hasRole('ROLE_ADMIN') && (
-                            <Link className="nav-link" to="/adminpage">Админ-панель</Link>
-                        )}
-                        {(hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')) && (
-                            <Link className="cart-wrapper" to="/cart">
-                                <div className="cart-button">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="cart-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.293 1.293a1 1 0 001.414 1.414L7 13zm10 0l1.293 1.293a1 1 0 01-1.414 1.414L17 13z" />
-                                    </svg>
-                                    {cartItems.length > 0 && (
-                                        <div className="cart-badge">{cartItems.length}</div>
+                        <Link className="cart-wrapper" to="/cart">
+                            <div className="cart-button-header">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <path fill="currentColor"
+                                          d="M17 18c-1.11 0-2 .89-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2M1 2v2h2l3.6 7.59l-1.36 2.45c-.15.28-.24.61-.24.96a2 2 0 0 0 2 2h12v-2H7.42a.25.25 0 0 1-.25-.25q0-.075.03-.12L8.1 13h7.45c.75 0 1.41-.42 1.75-1.03l3.58-6.47c.07-.16.12-.33.12-.5a1 1 0 0 0-1-1H5.21l-.94-2M7 18c-1.11 0-2 .89-2 2a2 2 0 0 0 2 2a2 2 0 0 0 2-2a2 2 0 0 0-2-2"/>
+                                </svg>
+                                {cartItems.length > 0 && (
+                                    <div className="cart-badge">{cartItems.length}</div>
+                                )}
+                            </div>
+                        </Link>
+
+                        <div className="user-dropdown">
+                            <button className="user-info" onClick={toggleMenu}>
+                                👤 {user.username}
+                            </button>
+                            {menuOpen && (
+                                <div className="dropdown-menu">
+                                    <Link to="/cart" className="dropdown-item" onClick={() => setMenuOpen(false)}>
+                                        🛒 Корзина
+                                    </Link>
+                                    <Link to="/orders" className="dropdown-item" onClick={() => setMenuOpen(false)}>
+                                        📜 История заказов
+                                    </Link>
+                                    {hasRole('ROLE_ADMIN') && (
+                                        <Link to="/adminpage" className="dropdown-item" onClick={() => setMenuOpen(false)}>
+                                            🛠 Админ-панель
+                                        </Link>
                                     )}
+                                    <button className="dropdown-item logout" onClick={handleLogout}>
+                                        🚪 Выйти
+                                    </button>
                                 </div>
-                            </Link>
-                        )}
-                        <span className="user-info">👤 {user.username}</span>
-                        <button className="logout-button" onClick={handleLogout}>Выйти</button>
+                            )}
+                        </div>
                     </>
                 ) : (
                     <>
