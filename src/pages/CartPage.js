@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // добавили useNavigate
+import { useNavigate } from 'react-router-dom';
 import '../styles/CartPage.css';
 
 const CartPage = () => {
@@ -8,22 +8,35 @@ const CartPage = () => {
     const [loading, setLoading] = useState(true);
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
     const [orderId, setOrderId] = useState(null);
-    const navigate = useNavigate(); // хук для навигации
+    const navigate = useNavigate();
 
-    const fetchCart = () => {
-        const token = localStorage.getItem('token');
-        axios.get('http://localhost:8080/api/cart', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-            .then(response => {
-                setCartItems(response.data);
-            })
-            .catch(error => {
-                console.error('Ошибка при получении корзины:', error);
-            })
-            .finally(() => setLoading(false));
+    const fetchCart = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const [cartResponse, bouquetsResponse] = await Promise.all([
+                axios.get('http://localhost:8080/api/cart', {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                axios.get('http://localhost:8080/api/bouquets')
+            ]);
+
+            const cartData = cartResponse.data;
+            const bouquets = bouquetsResponse.data;
+
+            const updatedCartItems = cartData.map(item => {
+                const bouquet = bouquets.find(b => b.name === item.bouquetName);
+                return {
+                    ...item,
+                    bouquetId: bouquet ? bouquet.id : null
+                };
+            });
+
+            setCartItems(updatedCartItems);
+        } catch (error) {
+            console.error('Ошибка при получении корзины или букетов:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -62,11 +75,37 @@ const CartPage = () => {
             });
     };
 
+    const handleUpdateQuantity = (item, newQuantity) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.error('Пользователь не авторизован');
+            return;
+        }
+
+        if (!item.bouquetId) {
+            console.error('Нет bouquetId для товара:', item);
+            return;
+        }
+
+        if (newQuantity <= 0) {
+            handleRemove(item.id);
+        } else {
+            axios.post('http://localhost:8080/api/cart/update', {
+                bouquetId: item.bouquetId,
+                quantity: newQuantity
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+                .then(() => fetchCart())
+                .catch(error => console.error('Ошибка при обновлении количества товара:', error));
+        }
+    };
+
     const totalPrice = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
 
     const handleModalClose = () => {
         setIsOrderModalOpen(false);
-        navigate('/orders'); // редирект на страницу истории заказов
+        navigate('/orders');
     };
 
     if (loading) return <p>Загрузка корзины...</p>;
@@ -82,11 +121,15 @@ const CartPage = () => {
                         <div key={item.id} className="cart-item">
                             <div className="cart-item-info">
                                 <div className="cart-item-img">
-                                    <img src={item.imageUrl} alt={item.bouquetName}/>
+                                    <img src={item.imageUrl} alt={item.bouquetName} />
                                 </div>
                                 <div className="cart-item-details">
                                     <h3>{item.bouquetName}</h3>
-                                    <p>Количество: {item.quantity}</p>
+                                    <div className="cart-controls">
+                                        <button className="cart-button" onClick={() => handleUpdateQuantity(item, item.quantity - 1)}>-</button>
+                                        <span className="cart-quantity">{item.quantity}</span>
+                                        <button className="cart-button" onClick={() => handleUpdateQuantity(item, item.quantity + 1)}>+</button>
+                                    </div>
                                     <p>Цена за всё: {item.totalPrice} ₽</p>
                                 </div>
                             </div>
@@ -115,3 +158,4 @@ const CartPage = () => {
 };
 
 export default CartPage;
+    

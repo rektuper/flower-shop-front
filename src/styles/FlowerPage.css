@@ -1,39 +1,58 @@
 .flower-page {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 32px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #fdfdfd;
 }
-
 .flower-title {
     text-align: center;
     margin-bottom: 24px;
     font-size: 32px;
-    color: #333;
+    color: deeppink;
 }
 
-.filter-bar {
-    margin-bottom: 30px;
+.flower-content {
     display: flex;
-    align-items: center;
-    gap: 16px;
-    justify-content: center;
-    flex-wrap: wrap;
+    gap: 32px;
+}
+
+.filter-panel {
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 16px;
+    border-radius: 16px;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    height: fit-content;
 }
 
 .search-input {
     padding: 10px 16px;
     border-radius: 8px;
     border: 1px solid #ccc;
-    width: 300px;
     font-size: 16px;
 }
 
-.stock-checkbox {
+.stock-filter {
     font-size: 16px;
     display: flex;
     align-items: center;
+    gap: 8px;
+}
+
+.sort-select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+.price-slider {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
 }
 
@@ -41,7 +60,8 @@
     display: flex;
     flex-wrap: wrap;
     gap: 24px;
-    justify-content: center;
+    justify-content: flex-start;
+    flex: 1;
 }
 
 .flower-card {
@@ -54,10 +74,6 @@
     flex-direction: column;
     align-items: center;
     transition: transform 0.2s ease;
-}
-
-.flower-card:hover {
-    transform: translateY(-4px);
 }
 
 .flower-image {
@@ -94,7 +110,7 @@
     margin-top: 12px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: start;
     gap: 8px;
 }
 
@@ -117,7 +133,26 @@
     background-color: #ff4fa3;
 }
 
-.add-to-cart-button:disabled{
+.add-to-cart-button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.favorite-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.favorite-button:hover {
+    transform: scale(1.2);
 }

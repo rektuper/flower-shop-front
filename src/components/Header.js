@@ -48,7 +48,9 @@ const Header = () => {
 
     return (
         <header className="header">
-            <Link className="logo" to="/">🌸 FlowerShop</Link>
+            <Link className="logo" to="/">
+                🌸 FlowerShop
+            </Link>
             <nav className="nav">
                 {user ? (
                     <>
@@ -64,17 +66,21 @@ const Header = () => {
                             </div>
                         </Link>
 
+
                         <div className="user-dropdown">
                             <button className="user-info" onClick={toggleMenu}>
                                 👤 {user.username}
                             </button>
                             {menuOpen && (
                                 <div className="dropdown-menu">
-                                    <Link to="/cart" className="dropdown-item" onClick={() => setMenuOpen(false)}>
+                                    <Link to="/cart" className="dropdown-item" onClick={() => {setMenuOpen(false)}}>
                                         🛒 Корзина
                                     </Link>
                                     <Link to="/orders" className="dropdown-item" onClick={() => setMenuOpen(false)}>
                                         📜 История заказов
+                                    </Link>
+                                    <Link to="/favorites"  className="dropdown-item">
+                                        ❤️ Избранное
                                     </Link>
                                     {hasRole('ROLE_ADMIN') && (
                                         <Link to="/adminpage" className="dropdown-item" onClick={() => setMenuOpen(false)}>

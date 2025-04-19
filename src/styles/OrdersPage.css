@@ -1,42 +1,110 @@
 .orders-page {
+    max-width: 1000px;
+    margin: 40px auto;
     padding: 20px;
 }
 
-.orders-page h1 {
+.page-title {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.loading-text,
+.error-text,
+.empty-text {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #777;
 }
 
 .orders-list {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
 }
 
 .order-card {
-    background-color: #fff;
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-5px);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.order-status {
+    padding: 6px 12px;
     border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #fff;
 }
 
-.order-card h3 {
-    margin-bottom: 10px;
-    color: pink;
+.order-status.pending {
+    background-color: orange;
 }
 
-.order-card p {
-    margin: 5px 0;
+.order-status.completed {
+    background-color: green;
+}
+
+.order-status.cancelled {
+    background-color: red;
+}
+
+.order-date,
+.order-total {
+    font-size: 1rem;
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.order-items-section {
+    margin-top: 16px;
 }
 
 .order-items {
-    margin-top: 15px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.order-items ul {
-    padding-left: 20px;
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
 }
 
-.order-items li {
-    margin-bottom: 5px;
+.item-name {
+    flex: 2;
+    font-weight: 500;
+    color: #333;
+}
+
+.item-quantity {
+    flex: 1;
+    text-align: center;
+    color: #666;
+}
+
+.item-price {
+    flex: 1;
+    text-align: right;
+    font-weight: 600;
+    color: #222;
 }

@@ -9,6 +9,7 @@ import RegisterPage from "./pages/RegisterPage";
 import FlowerPage from "./pages/FlowerPage";
 import CartPage from "./pages/CartPage";
 import OrdersPage from './pages/OrdersPage';
+import FavoritePage from "./pages/FavoritePage";
 
 const App = () => {
     return (
@@ -21,6 +22,7 @@ const App = () => {
                 <Route path="/adminpage" element={<AdminPage/>} />
                 <Route path="/cart" element={<CartPage/>}/>
                 <Route path="/orders" element={<OrdersPage />} />
+                <Route path="/favorites" element={<FavoritePage />} />
             </Routes>
         </Router>
     );
