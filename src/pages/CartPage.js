@@ -125,7 +125,7 @@ const CartPage = () => {
                                 </div>
                                 <div className="cart-item-details">
                                     <h3>{item.bouquetName}</h3>
-                                    <div className="cart-controls">
+                                    <div className="cart-controls-btn">
                                         <button className="cart-button" onClick={() => handleUpdateQuantity(item, item.quantity - 1)}>-</button>
                                         <span className="cart-quantity">{item.quantity}</span>
                                         <button className="cart-button" onClick={() => handleUpdateQuantity(item, item.quantity + 1)}>+</button>
@@ -158,4 +158,3 @@ const CartPage = () => {
 };
 
 export default CartPage;
-    

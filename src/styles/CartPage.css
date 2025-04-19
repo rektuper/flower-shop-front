@@ -41,10 +41,9 @@
     font-weight: 600;
 }
 
-.cart-controls {
+.cart-controls-btn {
     display: flex;
     align-items: center;
-    justify-content: start;
     gap: 12px;
     margin: 10px 0;
 }
@@ -83,7 +82,7 @@
     border-radius: 8px;
     font-size: 14px;
     cursor: pointer;
-    align-self: start;
+    align-self: center;
     transition: background-color 0.3s;
 }
 
