@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // добавили useNavigate
 import '../styles/CartPage.css';
 
 const CartPage = () => {
     const [cartItems, setCartItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+    const [orderId, setOrderId] = useState(null);
+    const navigate = useNavigate(); // хук для навигации
 
     const fetchCart = () => {
         const token = localStorage.getItem('token');
@@ -44,13 +47,14 @@ const CartPage = () => {
 
     const handleOrder = () => {
         const token = localStorage.getItem('token');
-        axios.post('http://localhost:8080/api/cart/checkout', {}, {
+        axios.post('http://localhost:8080/api/orders', {}, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         })
-            .then(() => {
+            .then(response => {
                 setCartItems([]);
+                setOrderId(response.data.id);
                 setIsOrderModalOpen(true);
             })
             .catch(error => {
@@ -59,6 +63,11 @@ const CartPage = () => {
     };
 
     const totalPrice = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
+
+    const handleModalClose = () => {
+        setIsOrderModalOpen(false);
+        navigate('/orders'); // редирект на страницу истории заказов
+    };
 
     if (loading) return <p>Загрузка корзины...</p>;
 
@@ -95,8 +104,9 @@ const CartPage = () => {
                 <div className="modal-overlay">
                     <div className="modal">
                         <h2>Спасибо за заказ! 🎉</h2>
+                        {orderId && <p>Номер вашего заказа: <strong>{orderId}</strong></p>}
                         <p>Мы скоро с вами свяжемся для подтверждения.</p>
-                        <button onClick={() => setIsOrderModalOpen(false)}>Закрыть</button>
+                        <button onClick={handleModalClose}>Перейти к заказам</button>
                     </div>
                 </div>
             )}
