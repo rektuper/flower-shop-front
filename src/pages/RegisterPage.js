@@ -20,17 +20,21 @@ const RegisterPage = () => {
                 })
             });
 
-            if (!res.ok) {
-                const errorText = await res.text();
-                throw new Error(errorText || 'Ошибка регистрации');
-            }
-
             const data = await res.json();
+
+            if (!res.ok || !data.token || data.token.length < 100) {
+                let errorText = data.token || 'Ошибка регистрации';
+                if (errorText.includes('Пользователь с таким именем уже существует')) {
+                    errorText = 'Увы, пользователь с таким именем уже есть!';
+                }
+                setError(errorText);
+                return;
+            }
             localStorage.setItem('token', data.token);
             navigate('/');
             window.location.reload();
         } catch (err) {
-            setError(err.message);
+            setError('Ошибка сервера. Попробуйте позже.');
         }
     };
 

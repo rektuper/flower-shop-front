@@ -15,7 +15,9 @@ const OrdersPage = () => {
                         Authorization: `Bearer ${token}`
                     }
                 });
-                setOrders(response.data ?? []);
+
+                const sortedOrders = (response.data ?? []).sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
+                setOrders(sortedOrders);
             } catch (error) {
                 console.error('Ошибка при получении заказов:', error);
                 setOrders([]);
